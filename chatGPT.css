@@ -1,0 +1,207 @@
+
+#chatbot{
+	position: fixed;
+	z-index: 999999;
+    color: #2bcf02;
+}
+/* Pindahkan elemen <select> ke bawah input teks dan style sesuai kebutuhan Anda */
+#request {
+    display: flex; /* Menggunakan flexbox untuk mengatur posisi elemen */
+    justify-content: center; /* Pusatkan elemen horizontal */
+    color: rgb(255, 255, 255);
+    align-items: center; /* Pusatkan elemen vertikal */
+    position: fixed;
+    bottom: 2em;
+    right: 2em;
+}
+
+
+.input-group {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 400px; /* Lebar maksimum input dan tombol */
+    margin: 0 auto;
+}
+
+.input-group input {
+    flex: 1;
+    font-size: 1em;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 10px;
+    background-color: transparent;
+    color: yellow;
+    padding: 5px;
+    margin-top: 20px;
+    border: none; /* Hapus border */
+}
+
+.input-group button {
+    position: fixed;
+    background-color: #2bcf02;
+    border: none;
+    color: white;
+    cursor: pointer;
+    bottom: 11%;
+    width: 50px;
+    height: 30px;
+    transform: translate(-50%, -50%);
+    left: 85%; /* Pindahkan ke tengah lebar layar */
+    right: 15%;
+}
+
+input#wisdom {
+    flex: 1;
+    position: fixed;
+    z-index: 3;
+    bottom: 13%; /* Pindahkan ke tengah tinggi layar */
+    left:50%; /* Pindahkan ke tengah lebar layar */
+    right:50%; /* Pindahkan ke tengah lebar layar */
+    transform: translate(-50%, -50%);
+    font-size: 1em; /* Ukuran font tetap sama */
+    width: 20%; /* Agar select memenuhi lebar kontainer */
+    height: 40px;
+    max-width: 100%; /* Lebar maksimum input teks di tampilan mobile */
+    /* Margin kiri dan kanan ditambahkan */
+    background-color: transparent;
+    color: white;
+    padding: 3px; /* Sesuaikan padding sesuai kebutuhan Anda */
+    margin-top: 20px; /* Tambahkan spasi di atas input */
+}
+/* CSS untuk input pada tampilan mobile */
+@media (max-width: 720px) {
+    input#wisdom {
+        width: 50%; /* Lebar pada tampilan mobile */
+    }
+}
+
+select#langCombo {
+    display: none;
+    z-index: 2;
+    position: fixed;
+    transform: translate(-50%, -50%);
+    display: block;
+    left: 30%;
+    right: 50%;
+    top: 5%;
+    color: aqua;
+    justify-content: center;
+    background-color: transparent;
+    width: 50%; /* Agar select memenuhi lebar kontainer */
+    min-width: 200px; /* Lebar minimum yang diinginkan */
+    max-width: 400px; /* Lebar maksimum yang diinginkan */
+    padding: 5px; /* Sesuaikan padding sesuai kebutuhan Anda */
+    font-size: 16px; /* Sesuaikan ukuran font sesuai kebutuhan Anda */
+}
+
+input::placeholder {
+    color: #2bcf02;
+    font-style: italic;
+}
+
+h3.userRequest {
+    z-index: 2;
+    position: fixed;
+    transform: translate(-50%, -50%);
+    bottom: 18%; /* Pindahkan ke tengah tinggi layar */
+    left:50%; /* Pindahkan ke tengah lebar layar */
+    right:50%;
+    display: block;
+    margin: 4px;
+    padding: 4px 10px 4px 10px;
+    border-radius: 4px;
+    min-width: 50%;
+    max-width: 85%;
+    float: right;
+    color:white;
+}
+#response{
+    position: fixed;
+    bottom: 2em;
+    left : 2em;
+    width:600px;
+    word-wrap:break-word;
+}
+.small-text {
+    z-index: 2;
+    position: fixed;
+    transform: translate(-50%, -50%);
+    bottom: 2%; /* Pindahkan ke tengah tinggi layar */
+    left:50%; /* Pindahkan ke tengah lebar layar */
+    right:50%;
+    display: block;
+    font-size: 10px; /* Mengurangi ukuran font */
+    opacity: 0.7; /* Menambahkan opacity (0.7 = 70%) */
+    font-style: italic; /* Mengatur style font menjadi italic */
+    color: white; /* Mengatur warna font */
+}
+small.Response {
+    align-content: center;
+    color: white;
+    font-style: italic;
+    font-size: 10px;
+    
+}
+.enter{
+    border-radius: 60px;
+    z-index: 2;
+    position: fixed;
+    transform: translate(-50%, -50%);
+    display: block;
+    bottom: 5%;
+    left: 50%;
+    right: 50%;
+    color: white;
+    justify-content: center;
+    background-color: pink;
+    opacity: 70%;
+    width: 40%; /* Agar select memenuhi lebar kontainer */
+    min-width: 200px; /* Lebar minimum yang diinginkan */
+    max-width: 300px; /* Lebar maksimum yang diinginkan */
+    padding: 5px; /* Sesuaikan padding sesuai kebutuhan Anda */
+    font-size: 16px; /* Sesuaikan ukuran font sesuai kebutuhan Anda */
+}
+
+p.chatError {
+    margin: 4px;
+    padding: 4px 10px 4px 10px;
+    border-radius: 4px;
+    text-align: right;
+    min-width: 50%;
+    max-width: 85%;
+    float: right;
+    background-color: #f77;
+}
+.right {
+    float: center;
+}
+
+#start_button {
+    position: fixed;
+    z-index: 1;
+    top: 64%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 100px; /* Ukuran tombol di desktop */
+    padding: 10px 30px; /* Sesuaikan padding sesuai kebutuhan Anda */
+    background-color: transparent; /* Ganti dengan warna latar belakang yang Anda inginkan */
+    color: #70ff11; /* Ganti dengan warna teks yang Anda inginkan */
+    border: none;
+    cursor: pointer;
+  
+}
+#start_button_mobile {
+    position: fixed;
+    z-index: 1;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 100px; /* Ukuran tombol di desktop */
+    padding: 10px 30px; /* Sesuaikan padding sesuai kebutuhan Anda */
+    background-color: transparent; /* Ganti dengan warna latar belakang yang Anda inginkan */
+    color: #70ff11; /* Ganti dengan warna teks yang Anda inginkan */
+    border: none;
+    cursor: pointer;
+  
+}

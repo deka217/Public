@@ -1,0 +1,469 @@
+<!-- Copyright Epic Games, Inc. All Rights Reserved. -->
+<!DOCTYPE HTML>
+<html>
+<head>
+	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
+	<link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+	<link type="text/css" rel="stylesheet" href="controller.css">
+    <script type="text/javascript" src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script type="text/javascript" src="scripts/webRtcPlayer.js"></script>
+	<script type="text/javascript" src="scripts/data.js"></script>
+    <script type="text/javascript" src="scripts/app.js"></script>
+	<link href="css/bootstrap.min.css" rel="stylesheet" >
+	<script src="js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body style="background-color:black;" onload="load()">
+	<div id="playerUI">
+		<div id="player" scaleWidth="0.5" scaleHeight="0.5" offsetTop="0" offsetLeft="0"></div>
+	</div>
+	<div class="container-fluid">
+		<div class="row" style="background-color: black;">
+			<div class="col-md-6">
+				<div id="space" style="background-color: rgb(0, 0, 0); height: 50vh; width: 50vw;"></div>
+				<div id="webrtcsettings">
+					<div class="form-group" style="margin-top:5px;">
+						<div class="settings-text">Kick All Other Players</div>
+						<div>
+							<input type="button" id="kick-other-players-button" class="btn btn-primary btn-sm float-end" style="width:100px;height:90%;" value="Kick">
+						</div>
+						<div class="settings-text">Show FPS</div>
+						<label class="tgl-switch">
+							<input type="checkbox" id="show-fps-tgl" class="tgl tgl-flat">
+							<div class="tgl-slider"></div>
+						</label>
+
+						<div class="settings-text">Show Stats</div>
+						<label class="tgl-switch">
+							<input type="checkbox" id="show-stats-tgl" class="tgl tgl-flat" checked>
+							<div class="tgl-slider"></div>
+						</label>
+					</div>
+					<div id="statsContainer" class="statsContainer">
+						<div id="stats" class="stats"></div>
+					</div>
+
+					<label class="collapsible settings-text">Networking</label>
+					<div class="content">
+						<div class="row">
+							<div id="networkingSettings" class="form-group">
+								<div id="encoderParamsContainer" class="settings-text" style="padding-right:10px;">Encoder Settings
+									<div class="form-group">
+										<div class="settings-text settings-text-sm">Min QP</div>
+										<input type="number" class="form-control form-control-sm text-center" id="encoder-min-qp-text" value="0" min="0" max="51" />
+										<div class="settings-text settings-text-sm">Max QP</div>
+										<input type="number" class="form-control form-control-sm text-center" id="encoder-max-qp-text" value="51" min="0" max="51" />
+									</div>
+									<input id="encoder-params-submit" class="btn btn-primary btn-sm" style="margin-top:5px; float:right;" type="button" value="Apply">
+								</div>
+								<div id="webrtcParamsContainer" class="settings-text" style="padding-left:10px;">WebRTC Settings
+									<div class="form-group">
+										<div class="settings-text settings-text-sm">FPS</div>
+										<input type="number" class="form-control form-control-sm text-center" id="webrtc-fps-text" value="60" min="1" max="999" />
+										<div class="settings-text settings-text-sm">Min Bitrate (kbps)</div>
+										<input type="number" class="form-control form-control-sm text-center" id="webrtc-min-bitrate-text" value="0" min="0" max="100000" />
+										<div class="settings-text settings-text-sm">Max Bitrate (kbps)</div>
+										<input type="number" class="form-control form-control-sm text-center" id="webrtc-max-bitrate-text" value="0" min="0" max="100000" />
+									</div>
+									<input id="webrtc-params-submit" class="btn btn-primary btn-sm" style="margin-top:5px; float:right;" type="button" value="Apply">
+								</div>
+							</div>
+							<div id="latencyTest">
+								<input type="button" id="test-latency-button" class="btn btn-primary btn-sm" value="Latency Test" />
+								<div id=LatencyStats class="stats">No stats yet...</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="row">
+					<div class="col-md-6">
+						<h3 class="text-white">Demo Script</h3>
+						<div class="row">
+							<div>
+								<input type="button" id="start-demo-button" class="btn btn-primary btn-sm" value="Start">
+								<input type="button" id="stop-demo-button" class="btn btn-primary btn-sm" value="Stop">
+							</div>
+							<div style="display:none">
+								<h6 class="collapsible" style="margin-top:5px;">Script Settings</h6>
+								<div class="content">
+									<label class="text-white settings-text">Camera Location</label>
+									<div>
+										<label class="text-white settings-text">X</label>
+										<input type="number" id="camera-location-x" value="0.0" min="-99999" max="99999" onchange="CameraLocation_change()"/>
+										<label class="text-white settings-text">Y</label>
+										<input type="number" id="camera-location-y" value="0.0" min="-99999" max="99999" onchange="CameraLocation_change()"/>
+										<label class="text-white settings-text">Z</label>
+										<input type="number" id="camera-location-z" value="0.0" min="-99999" max="99999" onchange="CameraLocation_change()"/>
+									</div>
+									<label class="text-white settings-text">Character Rotation</label>
+									<div>
+										<label class="text-white settings-text">Pitch</label>
+										<input type="number" id="character-rotation-p" value="0.0" min="-360" max="360" onchange="CharacterRotation_change()"/>
+										<label class="text-white settings-text">Yaw</label>
+										<input type="number" id="character-rotation-y" value="0.0" min="-360" max="360" onchange="CharacterRotation_change()"/>
+										<label class="text-white settings-text">Roll</label>
+										<input type="number" id="character-rotation-r" value="0.0" min="-360" max="360" onchange="CharacterRotation_change()"/>
+									</div>
+
+									<div>
+										<label class="text-white settings-text">Sabrina LookAt In/Out</label>
+										<input type="number" id="Sabrina_lookat_inout" min="-1" max="1" value="0" step="0.01"/>
+										<label class="text-white settings-text">Up/Down</label>
+										<input type="number" id="Sabrina_lookat_updown" min="-1" max="1" value="-0.2" step="0.01"/>
+									</div>
+									<div>
+										<label class="text-white settings-text">Star LookAt In/Out</label>
+										<input type="number" id="Star_lookat_inout" min="-1" max="1" value="0" step="0.01"/>
+										<label class="text-white settings-text">Up/Down</label>
+										<input type="number" id="Star_lookat_updown" min="-1" max="1" value="-0.15" step="0.01"/>
+									</div>
+									<div class="form-group">
+										<label class="text-white settings-text">S12_skincolor_interval</label>
+										<input type="number" id="S12_skincolor_interval" value="500" min="10" max="100000" step="10"/>
+										<label class="text-white settings-text">S12_outfit_interval</label>
+										<input type="number" id="S12_outfit_interval" value="800" min="10" max="100000" step="10"/>
+										<label class="text-white settings-text">S12_walkout_duration</label>
+										<input type="number" id="S12_walkout_duration" value="3000" min="10" max="100000" step="10"/>
+										<label class="text-white settings-text">S13_morphing_interval</label>
+										<input type="number" id="S13_morphing_interval" value="30" min="10" max="100000" step="10"/>
+										<label class="text-white settings-text">S13_walkin_voice_delay</label>
+										<input type="number" id="S13_walkin_voice_delay" value="1000" min="10" max="100000" step="10"/>
+										<label class="text-white settings-text">S13_walkin_duration</label>
+										<input type="number" id="S13_walkin_duration" value="3500" min="10" max="100000" step="10"/>
+										<label class="text-white settings-text">S13_walkout_duration</label>
+										<input type="number" id="S13_walkout_duration" value="3000" min="10" max="100000" step="10"/>
+										<label class="text-white settings-text">S14_walkin_duration</label>
+										<input type="number" id="S14_walkin_duration" value="3200" min="10" max="100000" step="10"/>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<h3 class="text-white">Character</h3>
+						<select id="character-select" class="form-select text-start mb-1">
+							<option value="Sabrina" selected>Sabrina</option>
+							<option value="Star">Star</option>
+							<option value="Sabrina_MVH">Sabrina_MVH</option>
+							<option value="Star_MVH">Star_MVH</option>
+						</select>
+
+						<h3 class="text-white">Outfit</h3>
+						<select id="skin-select" class="form-select text-start">
+							<option value="0" selected>None</option>
+						</select>
+
+						<h3 class="text-white">Color Adjustment</h3>
+						<div class="row">
+							<div>
+								<select id="avatarColor-select" class="form-select text-start">
+									<option value="0" selected>None</option>
+								</select>
+							</div>
+							<h6 class="text-white" style="margin-top:5px;">Color Picker
+								<input type="color" id="avatarColor-color" value="#ff0000" style="width:30px;">
+								<input type="button" id="avatarColorDefault-button" class="btn btn-primary btn-sm float-end" value="Reset">
+							</h6>
+						</div>
+
+						<h3 class="text-white">Camera Framing</h3>
+						<select id="camera-select" class="form-select text-start">
+							<option value="0" selected>Half-Body</option>
+							<option value="1">Face</option>
+							<option value="2">Full-Body</option>
+							<option value="free">Free</option>
+						</select>
+
+						<div id="joystickDiv" style="display:none; justify-content:center; flex-wrap:wrap;">
+							<div class="zoom-button-container">
+								<div id="zoomOutBtn" class="button-minus"></div>
+							</div>
+							<div id="joystickContainer" class="joystick-container">
+								<div id="joystickFrame" class="joystick-frame"></div>
+								<div id="joystickHandle" class="joystick-handle"></div>
+							</div>
+							<div class="zoom-button-container">
+								<div id="zoomInBtn" class="button-plus"></div>
+							</div>
+						</div>
+
+						<h3 class="text-white">Animation (Looping)</h3>
+						<select id="loopAnimation-select" class="form-select text-start mb-1" aria-label="Default select example">
+							<option value="0" selected>None</option>
+						</select>
+
+						<h3 class="text-white">Animation (Triggered)</h3>
+						<select id="triggerAnimation-select" class="form-select text-start mb-1" aria-label="Default select example">
+							<option value="0" selected>None</option>
+						</select>
+						<input type="button" id="triggerAnimation-button" class="btn btn-primary btn-sm" value="Trigger">
+						<input type="button" id="triggerAnimation-dock" class="btn btn-primary btn-sm" onclick="displayAni()" value="Dock">
+						<div id="triggerAnimation-dock-container"></div>
+
+						<h3 class="text-white">Facial Expression</h3>
+						<select id="expression-select" class="form-select text-start" aria-label="Default select example">
+							<option value="0" selected>None</option>
+						</select>
+
+						<h3 class="collapsible text-white" style="margin-top:5px;">Look-At Camera</h3>
+						<div class="content">
+							<div class="form-group" style="grid-template-columns:60% 40%;">
+								<h5 class="text-white">Enable</h5>
+								<div>
+									<label class="tgl-switch">
+										<input type="checkbox" id="lookAtCam-switch" class="tgl tgl-flat">
+										<div class="tgl-slider"></div>
+									</label>
+								</div>
+
+								<h5 class="text-white">Look In/Out</h5>
+								<div>
+									<input type="range" min="-1" max="1" value="0" step="0.01"  class="slider" id="LookAtCamOffsetX_Range" oninput="LookAtCamOffset_change()">
+									<output id="LookAtCamOffsetX_num" class="text-white">0</output>
+								</div>
+
+								<h5 class="text-white">Look Up/Down</h5>
+								<div>
+									<input type="range" min="-1" max="1" value="0" step="0.01"  class="slider" id="LookAtCamOffsetY_Range" oninput="LookAtCamOffset_change()">
+									<output id="LookAtCamOffsetY_num" class="text-white">0</output>
+								</div>
+
+								<h5 class="text-white">Horizontal Limit Angle</h5>
+								<div>
+									<input type="number" id="lookAtCamLimitAngle-horizontal-num" class="form-control form-control-sm text-center" name="" min="0" max="90" value="40" step="1">
+								</div>
+
+								<h5 class="text-white">Vertical Limit Angle</h5>
+								<div>
+									<input type="number" id="lookAtCamLimitAngle-vertical-num" class="form-control form-control-sm text-center" name="" min="0" max="90" value="10" step="1">
+								</div>
+
+								<h5 class="text-white">Blend Time (ms)</h5>
+								<div>
+									<input type="number" id="lookAtCamBlendTime-num" class="form-control form-control-sm text-center" value="500" step="100">
+								</div>
+							</div>
+						</div>
+
+						<h3 class="text-white">Background</h3>
+						<select id="background-select" class="form-select text-start mb-1" aria-label="Default select example">
+							<option value="none" selected>None</option>
+						</select>
+						<form>
+							<input type="file" id="bg-file" style="display:none" accept=".jpg">
+							<input type="button" id="bg-file-button" class="btn btn-primary btn-sm" value="Choose File">
+							<lable id="bg-file-text" class="text-white">No file chosen</lable>
+							<input type="button" id="bg-file-upload"  class="btn btn-primary btn-sm float-end" value="Upload">
+						</form>
+
+						<h3 class="text-white">Lighting</h3>
+						<select id="light-select" class="form-select text-start mb-1">
+							<option value="0" selected>Default</option>
+							<option value="1">Daylight</option>
+							<option value="2">Nightlight</option>
+							<option value="3">Presentation_1</option>
+							<option value="4">Presentation_2</option>
+							<option value="5">Presentation_3</option>
+							<option value="6">Backdrop_A</option>
+							<option value="7">Backdrop_B</option>
+							<option value="8">Backdrop_C</option>
+						</select>
+
+						<h3 class="collapsible text-white" style="margin-top:5px;">Companion</h3>
+						<div class="content">
+							<h5 class="text-white">DDTV</h3>
+							<input type="button" id="littleDream-button-visible" class="toggle-button" value="Visible">
+							<input type="button" id="littleDream-button-transform" class="toggle-button" value="Transform">
+							<input type="button" id="littleDream-button-gun" class="toggle-button" value="Gun">
+							<input type="button" id="littleDream-button-video" class="toggle-button" value="Video">
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<h3 class="text-white">Text-to-Speech</h3>
+						<div class="row">
+							<div class="col-md-6">
+								<h5 class="text-white">Engine</h5>
+								<select id="tts-engine-control" class="form-select text-start">
+									<option value="0" selected>None</option>
+								</select>
+							</div>
+							<div class="col-md-6">
+								<h5 class="text-white">Language</h5>
+								<select id="tts-language-control" class="form-select text-start">
+									<option value="0" selected>None</option>
+								</select>
+							</div>
+						</div>
+						<div class="row" style="margin-top:5px;">
+							<div class="col-md-6">
+								<h5 class="text-white">Voice</h5>
+								<select id="tts-voice-control" class="form-select text-start">
+									<option value="0" selected>None</option>
+								</select>
+							</div>
+							<div class="col-md-6">
+								<h5 class="text-white">Speed</h5>
+								<input type="number" id="tts-speed-num" class="form-control text-center" name="" min="0.5" max="4.0" value="1.0" step="0.01">
+							</div>
+						</div>
+						<div class="row" style="margin-top:5px;">
+							<h5 class="text-white">
+								<div style="position:relative;">
+									<input type="radio" id="tts-text-radio" name="tts_source" onchange=ttsSource_change() checked>
+									<label for="tts-text-radio">Text Input</label>
+									<input type="radio" id="tts-chatgpt-radio" name="tts_source" onchange=ttsSource_change()>
+									<label for="tts-chatgpt-radio">ChatGPT</label>
+									<input type="button" id="chatgpt-mic-button" onclick=chatgptMic_click() style="display:none;">
+									<label style="position:absolute; bottom:2px; right:0; font-size:16px; text-indent:0.2em;">SSML
+										<label class="tgl-switch" style="float:left">
+											<input type="checkbox" id="ssml-switch" class="tgl tgl-flat">
+											<div class="tgl-slider"></div>
+										</label>
+									</label>
+								</div>
+								<form id="tts-text-form">
+									<textarea type="textarea" id="tts-text" class="form-control" required></textarea>
+									<input type="submit" id="tts-submit-button" class="btn btn-primary btn-sm" style="margin-top:5px;" value="Submit">
+									<input type="button" id="tts-stop-button" class="btn btn-primary btn-sm" style="margin-top:5px;" value="Stop">
+								</form>
+							</h5>
+						</div>
+
+						<h3 class="text-white">Audio Files</h3>
+						<div class="row">
+							<div>
+								<select id="audio-select" class="form-select text-start mb-1" style="display:inline; width:75%;">
+									<option value="none" selected>None</option>
+								</select>
+								<div class="float-end">
+									<input type="button" id="play-audio-button" class="btn btn-primary btn-sm" value="Play">
+									<input type="button" id="stop-audio-button" class="btn btn-primary btn-sm" value="Stop">
+								</div>
+							</div>
+							<form>
+								<input type="file" id="audio-file" style="display:none" accept=".wav,.mp3">
+								<input type="button" id="audio-file-button" class="btn btn-primary btn-sm" value="Choose File">
+								<lable id="audio-file-text" class="text-white">No file chosen</lable>
+								<input type="button" id="audio-file-upload" class="btn btn-primary btn-sm float-end" value="Upload">
+							</form>
+						</div>
+
+						<h3 class="text-white">Live Streaming</h3>
+						<h5 class="text-white">
+							<div style="position:relative;">
+								<input type="radio" id="audio-stream-mic-radio" name="audio_stream" onchange=audioStreamSource_change() checked>
+								<label for="audio-stream-mic-radio">Microphone</label>
+								<div id="audio-stream-mic-container">
+									<h6 class="text-white">
+										<label style="position:absolute; bottom:2px; right:0; text-indent:0.2em;">Enable
+											<label class="tgl-switch" style="float:left">
+												<input type="checkbox" id="usemic-tgl" class="tgl tgl-flat">
+												<div class="tgl-slider"></div>
+											</label>
+										</label>
+									</h6>
+								</div>
+							</div>
+							<input type="radio" id="audio-stream-file-radio" name="audio_stream" onchange=audioStreamSource_change()>
+							<label for="audio-stream-file-radio">File</label>
+							<div style="margin-left:1em" class="disabledDiv" id="audio-stream-file-container">
+								<h6 class="text-white">
+									<input type="file" id="audio-stream-file" style="display:none" accept=".wav,.mp3">
+									<input type="button" id="audio-stream-file-button" class="btn btn-primary btn-sm" value="Choose File">
+									<lable id="audio-stream-file-text" class="text-white">No file chosen</lable>
+									<div class="float-end">
+										<input type="button" id="audio-stream-file-play-button" class="btn btn-primary btn-sm" value="Play" onclick="audioStream_play()">
+										<input type="button" id="audio-stream-file-stop-button" class="btn btn-primary btn-sm" value="Stop" onclick="audioStream_stop()">
+									</div>
+								</h6>
+							</div>
+							<input type="radio" id="audio-stream-url-radio" name="audio_stream" onchange=audioStreamSource_change()>
+							<label for="audio-stream-url-radio">URL</label>
+							<div style="margin-left:1em" class="disabledDiv" id="audio-stream-url-container">
+								<h6 class="text-white">
+									<input type="text" id="audio-stream-url-text" class="form-control" style="display:inline; width:75%;" value="" placeholder="http://...">
+									<div class="float-end">
+										<input type="button" id="audio-stream-url-play-button" class="btn btn-primary btn-sm" value="Play" onclick="audioStream_play()">
+										<input type="button" id="audio-stream-url-stop-button" class="btn btn-primary btn-sm" value="Stop" onclick="audioStream_stop()">
+									</div>
+								</h6>
+							</div>
+						</h5>
+
+						<h3 class="collapsible text-white" style="margin-top:5px;">Advanced</h3>
+						<div class="content">
+							<h5 class="text-white">Operation Mode</h5>
+							<select id="operation-select" class="form-select form-select-sm text-start mb-1">
+								<option value="preset" selected>Preset</option>
+								<option value="mvn_arkit">MVN+ARKit</option>
+								<option value="preset_arkit">Preset+ARKit</option>
+							</select>
+
+							<h5 class="text-white">NDI Output
+								<label class="tgl-switch">
+									<input type="checkbox" id="ndi-output-switch" class="tgl tgl-flat">
+									<div class="tgl-slider"></div>
+								</label>
+							</h5>
+
+							<h5 class="text-white">NDI Output with Alpha
+								<label class="tgl-switch">
+									<input type="checkbox" id="ndi-output-switch-with-alpha" class="tgl tgl-flat">
+									<div class="tgl-slider"></div>
+								</label>
+							</h5>
+
+							<h5 class="text-white">ARKit Correction
+								<label class="tgl-switch">
+									<input type="checkbox" id="arkit-correction-switch" class="tgl tgl-flat" checked>
+									<div class="tgl-slider"></div>
+								</label>
+							</h5>
+							<h5 class="text-white">ARKit Head Rotation
+								<label class="tgl-switch">
+									<input type="checkbox" id="arkit-head-rotation-switch" class="tgl tgl-flat">
+									<div class="tgl-slider"></div>
+								</label>
+							</h5>
+
+							<h5 class="text-white">LipSync
+							<label class="tgl-switch">
+								<input type="checkbox" id="lipsync-tgl" class="tgl tgl-flat" checked>
+								<div class="tgl-slider"></div>
+							</label>
+							</h5>
+
+							<h5 class="text-white">LipSync Audio Offset (ms)
+								<label class="tgl-switch">
+									<input type="number" id="audio-offset-num" class="form-control form-control-sm text-center" name="" min="0" max="10000" value="0" step="10">
+								</label>
+							</h5>
+							<div style="margin-top:10px;"></div>
+
+							<h5 class="text-white">Keyboard Input
+								<label class="tgl-switch">
+									<input type="checkbox" id="keyboard-input-tgl" class="tgl tgl-flat">
+									<div class="tgl-slider"></div>
+								</label>
+							</h5>
+
+							<h5 class="text-white">OpenAI Token</h5>
+							<form onsubmit="this.reset(); return false;" style="display:flex;">
+								<input type="password" class="form-control form-control-sm text-start" id="openaiToken-text" value="" required>
+								<input type="submit" class="btn btn-primary btn-sm" id="openaiToken-button" style="margin-left:0.5em; flex-grow:1;" value="Apply">
+							</form>
+							<h5 class="text-white">OpenAI Model</h5>
+							<input type="text" class="form-control form-control-sm text-start" id="modelInput" value="gpt-3.5-turbo">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

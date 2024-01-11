@@ -1,0 +1,335 @@
+<!-- Copyright Epic Games, Inc. All Rights Reserved. -->
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <!-- ... -->
+    <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+    <link type="text/css" rel="stylesheet" href="controller.css">
+    <link type="text/css" rel="stylesheet" href="chatGPT.css">
+    <script type="text/javascript" src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script type="text/javascript" src="scripts/webRtcPlayer.js"></script>
+    <script type="text/javascript" src="scripts/apptest.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="js/bootstrap.bundle.min.js"></script>
+
+
+
+</head>
+
+<body onload="load()">
+    
+    <div id="playerUI">
+        <div id="player" scaleWidth="1.0" scaleHeight="1.0" offsetTop="0" offsetLeft="0"></div>
+        <div id="request">
+            <h3 class="userRequest"></h3>
+
+            <form id="chatform" onsubmit="return requestAPI()">
+                
+                <input type="text" read id="wisdom" size="80" class="form-control" value=""
+                    placeholder="You can ask me anything?" autocomplete="off">
+                <select id="langCombo" class="form-select text-center">
+                   
+                    <option value="id-ID">Bahasa Indonesia</option>
+                  
+                </select>
+                <!-- <label class="col-sm-2 col-form-label" size="80">Selamat datang, <span id="nama"></span>!</label> -->
+            </form>
+            <br />
+
+            <div class="row">
+                <div class="col-md-8">
+
+                </div>
+                <div class="col-md-4">
+                    <!-- Center-aligned and smaller microphone button -->
+                    <button id="start_button" onclick="startButton(event)">
+                        <img id="start_img" src="./images/mic.gif"
+                            style="border-radius: 100px; width:50px; height: 50px; ">
+                    </button>
+                </div>
+            </div>
+            <label id="infoBox"></label>
+        </div>
+        <div id="overlay" class="overlay text-light bg-dark" style="display:none">
+            <div>
+                <div id="qualityStatus" class="greyStatus">&#9679</div>
+                <div id="overlayButton">+</div>
+            </div>
+            <div id="overlaySettings">
+                <div id="fillWindow">
+                    <div class="settings-text">Enlarge Display to Fill Window</div>
+                    <label class="tgl-switch">
+                        <input type="checkbox" id="enlarge-display-to-fill-window-tgl" class="tgl tgl-flat" checked>
+                        <div class="tgl-slider"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div id="chatbot">
+            <div id="response">
+                <small class="Response text-light" hidden></small>
+            </div>
+
+
+        </div>
+        
+
+        <script type="text/javascript">
+            /*   chrome STT start */
+            var infoBox; // label
+            var tempBox; // The Process of Speech Recognition
+            var startStopButton; // StartStopButton
+            // var final_transcript = ''; // Speech recognition final result
+            var recognizing = false;
+            var namauser = '';
+            var userid = '';
+            var agentid = '';
+            var quest = '';
+            var answerx = '';
+            document.addEventListener("DOMContentLoaded", function () {
+                const params = new URLSearchParams(window.location.search);
+                const nama = params.get("nama");
+                userid = params.get("userid");
+                agentid = params.get("agentid");
+                
+                //postData('Contoh Pertanyaan', 'Contoh jawaban');
+
+                if (nama) {
+                    namauser = nama;
+                } else {
+                    namauser = "Pengunjung";
+                }
+                document.getElementById("nama").textContent = namauser
+            });
+
+            function postData(question, answer) {
+                var dataToSend = {
+                    clientId: agentid,
+                    userId: userid,
+                    question: question,
+                    answer: answer
+                };
+
+                fetch("https://kopsor.com:8083/userquestion/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(dataToSend)
+                })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    console.log("Respon dari API: " + data.message);
+                })
+                .catch(function (error) {
+                    console.error("Error: " + error.message);
+                });
+            }
+
+
+           
+            if (!('webkitSpeechRecognition' in window)) {  //If the attribute window.webkitSpeechRecognition cannot be found, it means that speech recognition is not supported and the user is required to update the browser.
+                infoBox.innerText = "This browser does not support speech recognition, please change your browser! (Speech recognition is only supported in Chrome version 25+)";
+            } else {
+                var recognition = new webkitSpeechRecognition(); // Create a speech recognition object webkitSpeechRecognition
+                recognition.continuous = true; // Set continuous identification mode
+                recognition.interimResults = true; // Set the result first in the output.
+
+                recognition.onstart = function () {
+                    recognizing = true;
+                    infoBox.innerText = "identifying...";
+                    start_img.src = './images/mic-animate.gif';
+                };
+
+                recognition.onend = function () {
+                    recognizing = false;
+                    start_img.src = './images/mic.gif';
+                    infoBox.innerText = "";
+                    requestAPI()
+                };
+
+                recognition.onresult = function (event) { //when identifying any result
+                    var interim_transcript = '';
+                    for (var i = event.resultIndex; i < event.results.length; ++i) { //For each identification result
+                        if (event.results[i].isFinal) {
+                            // final_transcript += event.results[i][0].transcript; 
+                        } else {
+                            interim_transcript += event.results[i][0].transcript;
+                        }
+                    }
+                    if (interim_transcript.trim().length > 0)
+                        tempBox.value = interim_transcript;
+                };
+            }
+
+            /* chrome SST end */
+
+            let conv = new Array();
+            conv = ["", ""];
+            //pertanyaan
+            function showRequest(daText) {
+                document.getElementsByClassName("userRequest")[0].innerHTML = daText;
+                quest = daText;
+            }
+
+            function showError(daText) {
+
+                var conversationDiv = document.getElementById('conversation');
+                var errorPara = document.createElement("P");
+                errorPara.className = 'chatError';
+                errorPara.appendChild(document.createTextNode(daText));
+                conversationDiv.appendChild(errorPara);
+                conversationDiv.scrollTop = conversationDiv.scrollHeight;
+            }
+//jawaban
+            function showResponse(Response) {
+                document.getElementsByClassName("Response")[0].innerHTML = Response.message;
+            }
+            function botReturn() {
+                var voiceName;
+                var voiceType;
+                langCombo = document.getElementById("langCombo");
+                recognition.lang = langCombo.value;
+                if (webRtcPlayerObj) {
+                    webRtcPlayerObj.stopAudio();
+                }
+
+                switch (recognition.lang) {
+                    case "en-US": {
+                        voiceName = "Bridget";
+                        voiceType = "N16";
+                        break;
+                    }
+                    case "cmn-Hant-TW": {
+                        voiceName = "Yafang";
+                        voiceType = "P16";
+                        break;
+                    }
+                    case "id-ID": {
+                        voiceName = "Annisa";
+                        voiceType = "N16";
+                        break;
+                    }
+                    case "ja-JP": {
+                        voiceName = "Risa";
+                        voiceType = "N16";
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+                answerx = document.getElementsByClassName('Response')[0].innerHTML;
+                emitUIInteraction({ TTSEngine: 1 });
+                emitUIInteraction({ TTSVoiceName: voiceName });
+                emitUIInteraction({ TTSVoiceType: voiceType });
+                emitUIInteraction({ TTSText: document.getElementsByClassName('Response')[0].innerHTML });
+                emitUIInteraction({ Animation: '1,1' });
+
+            }
+
+
+
+            function requestAPI() {
+                var wisdomText = document.getElementById('wisdom');
+                var wisdom = wisdomText.value.trim();
+                conv.unshift(wisdom);
+                if (conv.length > 2) {
+                    conv.pop();
+                }
+
+                var wisdomList = conv[0] + "." + conv[1];
+                console.log("wisdomList:", wisdomList);
+                console.log("array:", conv);
+                console.log("array len:", conv.length);
+                console.log('conv[0] typeof:', typeof conv[0]);
+
+                showRequest(wisdomText.value);
+                wisdomText.value = '';
+                wisdomText.locked = true;
+
+                // Mendapatkan ID, agent, dan token dari localStorage (sesuaikan dengan key yang digunakan)
+                var userId = localStorage.getItem('userId');
+                var agentId = localStorage.getItem('agent');
+                var token = localStorage.getItem('token');
+
+                var request = new XMLHttpRequest();
+                request.open('POST', 'https://chatdoc.cakra.ai/api/v2-banking');
+                request.setRequestHeader('Content-Type', 'application/json');
+                request.setRequestHeader('Authorization', 'Bearer ' + token + userId + agentId);
+
+                request.onreadystatechange = function () {
+                    if (this.readyState === 4) {
+                        if (this.status == 200) {
+                            console.log('Status:', this.status);
+                            console.log('Headers:', this.getAllResponseHeaders());
+                            let res = this.responseText;
+                            const resobj = JSON.parse(res);
+                            const responseField = resobj.response;
+                            console.log("req:", wisdom);
+                            console.log("res:", responseField);
+
+                            // Hanya menampilkan respons jika ada pertanyaan yang dikirim
+                            if (wisdom.trim().length > 0) {
+                                document.getElementsByClassName("Response")[0].innerHTML = responseField;
+                                botReturn();
+                            } else {
+                                // Tidak menampilkan respons jika tidak ada pertanyaan
+                                document.getElementsByClassName("Response")[0].innerHTML = '';
+                            }
+
+                            // Tidak perlu lagi mengisi kembali input "wisdom" dengan respons teks
+                            // document.getElementById("wisdom").value = responseField;
+                        } else {
+                            document.getElementsByClassName("Response")[0].innerHTML = 'Open AI status : ' + this.status;
+                            botReturn();
+                        }
+                        //console.log('pertanyaan :' + quest);
+                        //console.log('jawaban :' + answerx);
+                        postData(quest, answerx);
+                    }
+                };
+
+                // Hanya mengirim permintaan jika ada pertanyaan yang dikirim
+                if (wisdom.trim().length > 0) {
+                    var body = {
+                        'query': wisdom, // Menggunakan "wisdom" sebagai query
+                        'id': '20', // Menggunakan ID dari localStorage
+                        'agent': 'bni', // Menggunakan agent dari localStorage
+                        'max_tokens': 4000,
+                        'temperature': 1.0
+                    };
+
+                    request.send(JSON.stringify(body));
+                } else {
+                    wisdomText.locked = false;
+                }
+            }
+
+        </script>
+        <!-- skrip lainnya -->
+        <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function () {
+                var wisdomInput = document.getElementById('wisdom');
+
+                wisdomInput.addEventListener('keypress', function (event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault(); // Menghentikan perilaku default tombol Enter
+                        requestAPI(); // Panggil fungsi requestAPI() untuk mengirim teks ke server
+                    }
+                });
+            });
+        </script>
+    </div>
+</body>
+
+</html>

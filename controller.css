@@ -1,0 +1,425 @@
+/*Copyright DHTCL, Inc. All Rights Reserved.*/
+
+:root {
+	/*Using colour scheme https://color.adobe.com/TD-Colors---Option-3-color-theme-10394433/*/
+	--colour1:#000000;
+	--colour2:#FFFFFF;
+	--colour3:#0d6efd;
+	--colour4:#c3c3c3;
+
+	--buttonFont:Helvetica;
+	--inputFont:Helvetica;
+}
+
+body{
+	margin: 0px;
+	background-color: var(--colour1);
+}
+
+video{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
+#playerUI {
+	width: 100%;
+	height: 100%;
+}
+
+#player{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	background-color: #000;
+}
+
+#videoPlayOverlay{
+	z-index: 30;
+	position: absolute;
+	font-size: 1.8em;
+	width: 100%;
+	height: 100%;
+	color: var(--colour2);
+	background-color: rgba(100, 100, 100, 0.7);
+}
+
+#playButton{
+	display: inline-block;
+	height: auto;
+	z-index: 30;
+}
+
+img#playButton{
+	max-width: 241px;
+	width: 10%;
+}
+
+/* State for element to be clickable */
+.clickableState{
+	align-items: center;
+	justify-content: center;
+	display: flex;
+	cursor: pointer;
+}
+
+/* State for element to show text, this is for informational use*/
+.textDisplayState{
+	align-items: center;
+	justify-content: center;
+	display: flex;
+	cursor: pointer;
+}
+
+/* State to hide overlay, WebRTC communication is in progress and or is playing */
+.hiddenState{
+	display: none;
+}
+
+.stats {
+	font-size: 0.875em;
+	font-weight: bold;
+	padding: 6px;
+	color: lime;
+}
+
+.settings-text{
+	color: var(--colour2);
+	vertical-align: middle;
+	font-size: 1.125em;
+	font-weight: normal;
+	display: inline-block;
+}
+
+.settings-text-sm{
+	font-size: 0.875em;
+}
+
+.tgl-switch {
+	float: right;
+	vertical-align: middle;
+	display: inline-block;
+}
+
+.tgl-switch .tgl {
+	display:none;
+}
+
+.tgl-slider {
+	float:right;
+}
+
+.tgl, .tgl:after, .tgl:before, .tgl *, .tgl *:after, .tgl *:before, .tgl + .tgl-slider {
+	-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+}
+.tgl::-moz-selection, .tgl:after::-moz-selection, .tgl:before::-moz-selection, .tgl *::-moz-selection, .tgl *:after::-moz-selection, .tgl *:before::-moz-selection, .tgl + .tgl-slider::-moz-selection {
+	background: none;
+}
+.tgl::selection, .tgl:after::selection, .tgl:before::selection, .tgl *::selection, .tgl *:after::selection, .tgl *:before::selection, .tgl + .tgl-slider::selection {
+	background: none;
+}
+
+.tgl + .tgl-slider {
+	outline: 0;
+	display: block;
+	width: 40px;
+	height: 18px;
+	position: relative;
+	cursor: pointer;
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+		-ms-user-select: none;
+			user-select: none;
+}
+
+.tgl + .tgl-slider:after, .tgl + .tgl-slider:before {
+	position: relative;
+	display: block;
+	content: "";
+	width: 50%;
+	height: 100%;
+}
+.tgl + .tgl-slider:after {
+	left: 0;
+}
+.tgl + .tgl-slider:before {
+	display: none;
+}
+
+.tgl-flat + .tgl-slider {
+	padding: 2px;
+	-webkit-transition: all .2s ease;
+	transition: all .2s ease;
+	background: var(--colour1);
+	border: 3px solid var(--colour4);
+	border-radius: 2em;
+}
+
+.tgl-flat + .tgl-slider:after {
+	-webkit-transition: all .2s ease;
+	transition: all .2s ease;
+	background: var(--colour4);
+	content: "";
+	border-radius: 1em;
+}
+
+.tgl-flat:checked + .tgl-slider {
+	border: 3px solid var(--colour3);
+}
+
+.tgl-flat:checked + .tgl-slider:after {
+	left: 50%;
+	background: var(--colour3);
+}
+
+.form-group {
+	display: grid;
+	grid-template-columns: 50% 50%;
+	row-gap: 2px;
+}
+
+.form-group label {
+	color: var(--colour2);
+	vertical-align: middle;
+	font-weight: normal;
+}
+
+.circle-grey {
+	width:15px;
+	height:15px;
+	background-color: grey;
+	border-radius:10px;
+}
+
+.circle-lime {
+	width:15px;
+	height:15px;
+	background-color: lime;
+	border-radius:10px;
+}
+
+.circle-red {
+	width:15px;
+	height:15px;
+	background-color: red;
+	border-radius:10px;
+}
+
+.blink {
+	animation: blinker 1s infinite;
+}
+
+@keyframes blinker {
+	from { opacity: 1.0; }
+	50% { opacity: 0.5; }
+	to { opacity: 1.0; }
+}
+
+.spinner {
+	border-radius: 50%;
+	width: 15px;
+	height: 15px;
+	border-top: 2px solid rgba(255, 255, 255, 0.2);
+	border-right: 2px solid rgba(255, 255, 255, 0.2);
+	border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+	border-left: 2px solid lime;
+	-webkit-transform: translateZ(0);
+	transform: translateZ(0);
+	-webkit-animation: rotate 1s infinite linear;
+	animation: rotate 1s infinite linear;
+}
+
+@keyframes rotate {
+	0% {
+		-webkit-transform: rotate(0deg);
+		transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(360deg);
+		transform: rotate(360deg);
+	}
+}
+
+.toggle-button {
+	cursor: pointer;
+	position: relative;
+	border: 2px solid var(--colour3);
+	border-radius: 0.25em;
+	background-color: var(--colour3);
+	color: white;
+	font-size: 0.875em;
+}
+
+.toggle-button:active, .toggle-button-active {
+	border: 2px solid white;
+}
+
+.collapsible {
+	background-color: rgb(70, 70, 70);
+	color: white;
+	cursor: pointer;
+	padding: 3px;
+	width: 100%;
+	border-radius: 0.375em;
+	text-align: left;
+	outline: none;
+}
+
+.active, .collapsible:hover {
+	background-color: rgb(90, 90, 90);
+}
+
+.collapsible:after {
+	content: '\002B'; /* + plus sign */
+	color: white;
+	font-weight: bold;
+	float: inline-end;
+	margin-left: 5px;
+}
+
+.collapsible-active:after {
+	content: "\2212";
+}
+
+.content {
+	padding: 0 20px;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.2s ease-out;
+	background-color: black;
+}
+
+.joystick-container {
+	width: 150px;
+	height: 150px;
+	border: 1px solid black;
+	border-radius: 50%;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+}
+
+.joystick-frame {
+	width: 80%;
+	height: 80%;
+	border: 2px solid var(--colour3);
+	border-radius: 50%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.joystick-handle {
+	z-index: 30;
+	width: 50px;
+	height: 50px;
+	background: white;
+	border: 2px solid var(--colour3);
+	border-radius: 50%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.5);
+}
+
+.zoom-button-container {
+	width: 50px;
+	height: 150px;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+}
+
+.button-plus,
+.button-minus {
+	width: 30px;
+	height: 30px;
+	background: white;
+	border: 1px solid var(--colour3);
+	border-radius: 50%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	cursor: pointer;
+}
+
+/* - */
+.button-plus:after,
+.button-minus:after {
+	content: '';
+	height: 2px;
+	width: 50%;
+	background: var(--colour3);
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+/* | */
+.button-plus:before {
+	content: '';
+	height: 50%;
+	width: 2px;
+	background: var(--colour3);
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.button-plus:hover:before,
+.button-plus:hover:after,
+.button-minus:hover:before,
+.button-minus:hover:after {
+	background: white;
+	transition: 0.2s;
+}
+
+.button-plus:hover,
+.button-minus:hover {
+	background-color: var(--colour3);
+	transition: 0.2s;
+}
+
+.hidden {
+	display: none;
+}
+
+#chatgpt-mic-button {
+	background-image: url('/images/mic.gif');
+	background-repeat: no-repeat;
+	border: 0;
+	background-color:transparent;
+	background-size: contain;
+	width: 30px;
+}
+
+#chatbotOverlay {
+	z-index: 30;
+	position: absolute;
+	width: 30%;
+	height: 100%;
+	background-color: rgba(100, 100, 100, 0.7);
+	overflow-y: scroll;
+}
+
+.chatbotSpan {
+	margin-top:1px;
+	font-size: 1.125em;
+	color: white;
+	display: block;
+	word-wrap: break-word;
+	padding-left: 5px;
+	/*background-color: rgba(255, 255, 255, 0.7);*/
+	border: 2px solid rgba(180, 180, 180, 0.7);
+	border-radius: 3px;
+}
+
+.disabledDiv {
+	pointer-events: none;
+	opacity: 0.4;
+}
